@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { analizarContenido } from '../services/toxicityApi'
 
-export default function AnalyzeCard() {
-  const [inputUrl, setInputUrl] = useState('')
-  const [loading, setLoading] = useState(false)
+// export default function AnalyzeCard() {
+//   const [inputUrl, setInputUrl] = useState('')
+//   const [loading, setLoading] = useState(false)
 
   // const handleAnalysis = async () => {
   //   if (!inputUrl) return alert('Please enter a URL first')
@@ -40,26 +40,56 @@ export default function AnalyzeCard() {
   //   }
   // }
 
+  // const handleAnalysis = async () => {
+  //   if (!inputUrl) return alert('Please enter a URL first')
+
+  //   setLoading(true)
+  //   try {
+  //     // Llamamos al servicio pasando la URL del input
+  //     const data = await analizarContenido(inputUrl)
+      
+  //     console.log("Respuesta de la IA:", data)
+      
+  //     // Aquí procesarás la respuesta (data.es_toxico, data.score_confianza, etc.)
+  //     alert('Analysis Complete! Check the console for data.')
+
+  //   } catch (error) {
+  //     alert('Something went wrong with the AI model. Check the console.');
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
+// 1. Recibimos la función a través de las props del componente
+export default function AnalyzeCard({ onAnalysisComplete }) {
+  const [inputUrl, setInputUrl] = useState('')
+  const [loading, setLoading] = useState(false)
+
   const handleAnalysis = async () => {
-    if (!inputUrl) return alert('Please enter a URL first')
+    if (!inputUrl) return alert('Please enter a YouTube URL first')
 
     setLoading(true)
     try {
-      // Llamamos al servicio pasando la URL del input
+      // Llamamos al servicio que habla con Go
       const data = await analizarContenido(inputUrl)
       
       console.log("Respuesta de la IA:", data)
       
-      // Aquí procesarás la respuesta (data.es_toxico, data.score_confianza, etc.)
-      alert('Analysis Complete! Check the console for data.')
+      // Pasamos el nuevo JSON al componente padre para que pinte las gráficas o resultados
+      if (onAnalysisComplete) {
+        onAnalysisComplete(data)
+      }
+
+      // Limpiamos el cuadro de texto para la siguiente consulta
+      setInputUrl('')
 
     } catch (error) {
-      alert('Something went wrong with the AI model. Check the console.');
+      alert('Something went wrong with the Backend. Check the console.');
     } finally {
       setLoading(false)
     }
   }
 
+  // ... Todo tu bloque de return (HTML/Tailwind) se queda exactamente igual ...
   return (
     <section className="relative group w-full">
       {/* Efecto de resplandor trasero */}
