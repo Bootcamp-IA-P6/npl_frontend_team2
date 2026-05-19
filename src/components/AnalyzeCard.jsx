@@ -1,39 +1,60 @@
 import { useState } from 'react'
+import { analizarContenido } from '../services/toxicityApi'
 
 export default function AnalyzeCard() {
   const [inputUrl, setInputUrl] = useState('')
   const [loading, setLoading] = useState(false)
+
+  // const handleAnalysis = async () => {
+  //   if (!inputUrl) return alert('Please enter a URL first')
+
+  //   setLoading(true)
+  //   try {
+  //     // 1. REEMPLAZA ESTA URL POR LA DE TU API DE HUGGING FACE
+  //     const apiUrl = "TU_URL_DE_HUGGING_FACE_AQUÍ" 
+      
+  //     // 2. REEMPLAZA ESTE TOKEN POR TU API KEY DE HUGGING FACE (hf_...)
+  //     const hfToken = "TU_TOKEN_DE_HUGGING_FACE_AQUÍ"
+
+  //     const response = await fetch(apiUrl, {
+  //       method: "POST",
+  //       headers: {
+  //         "Authorization": `Bearer ${hfToken}`,
+  //         "Content-Type": "application/json"
+  //       },
+  //       // Dependiendo de tu modelo, puede pedir { inputs: inputUrl } o { data: [inputUrl] }
+  //       body: JSON.stringify({ inputs: inputUrl }) 
+  //     })
+
+  //     const data = await response.json()
+  //     console.log("Respuesta de la IA:", data)
+      
+  //     // Aquí es donde procesarás el resultado para pintar los gráficos abajo.
+  //     alert('Analysis Complete! Check the console for data.')
+
+  //   } catch (error) {
+  //     console.error("Error llamando al modelo:", error)
+  //     alert('Something went wrong with the AI model.')
+  //   } finally {
+  //     setLoading(false)
+  //   }
+  // }
 
   const handleAnalysis = async () => {
     if (!inputUrl) return alert('Please enter a URL first')
 
     setLoading(true)
     try {
-      // 1. REEMPLAZA ESTA URL POR LA DE TU API DE HUGGING FACE
-      const apiUrl = "TU_URL_DE_HUGGING_FACE_AQUÍ" 
+      // Llamamos al servicio pasando la URL del input
+      const data = await analizarContenido(inputUrl)
       
-      // 2. REEMPLAZA ESTE TOKEN POR TU API KEY DE HUGGING FACE (hf_...)
-      const hfToken = "TU_TOKEN_DE_HUGGING_FACE_AQUÍ"
-
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${hfToken}`,
-          "Content-Type": "application/json"
-        },
-        // Dependiendo de tu modelo, puede pedir { inputs: inputUrl } o { data: [inputUrl] }
-        body: JSON.stringify({ inputs: inputUrl }) 
-      })
-
-      const data = await response.json()
       console.log("Respuesta de la IA:", data)
       
-      // Aquí es donde procesarás el resultado para pintar los gráficos abajo.
+      // Aquí procesarás la respuesta (data.es_toxico, data.score_confianza, etc.)
       alert('Analysis Complete! Check the console for data.')
 
     } catch (error) {
-      console.error("Error llamando al modelo:", error)
-      alert('Something went wrong with the AI model.')
+      alert('Something went wrong with the AI model. Check the console.');
     } finally {
       setLoading(false)
     }
