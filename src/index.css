@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800;900&family=Inter:wght@400;500&family=Geist:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+/* Mapeo de variables nativas para Tailwind v4 */
+:root {
+  --primary: #ddb8ff;
+  --primary-container: #9333ea;
+  --background: #131316;
+  --surface: #131316;
+  --surface-variant: #353438;
+  --on-surface: #e4e1e6;
+  --on-surface-variant: #cfc2d7;
+  --border: rgba(255, 255, 255, 0.06);
+}
+
+body {
+  background-color: #050505;
+  color: #e4e1e6;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tipografías del prototipo */
+.font-headline {
+  font-family: 'Hanken Grotesk', sans-serif;
+}
+
+.font-label {
+  font-family: 'Geist', sans-serif;
+}
+
+/* Efectos especiales del HTML */
+.glass {
+  background: rgba(31, 31, 34, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(77, 67, 84, 0.3);
+}
+
+.active-glow {
+  box-shadow: 0 0 15px rgba(147, 51, 234, 0.3);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #353438;
+  border-radius: 10px;
+}
