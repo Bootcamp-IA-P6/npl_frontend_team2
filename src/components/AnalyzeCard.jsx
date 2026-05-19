@@ -1,4 +1,44 @@
+import { useState } from 'react'
+
 export default function AnalyzeCard() {
+  const [inputUrl, setInputUrl] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleAnalysis = async () => {
+    if (!inputUrl) return alert('Please enter a URL first')
+
+    setLoading(true)
+    try {
+      // 1. REEMPLAZA ESTA URL POR LA DE TU API DE HUGGING FACE
+      const apiUrl = "TU_URL_DE_HUGGING_FACE_AQUÍ" 
+      
+      // 2. REEMPLAZA ESTE TOKEN POR TU API KEY DE HUGGING FACE (hf_...)
+      const hfToken = "TU_TOKEN_DE_HUGGING_FACE_AQUÍ"
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${hfToken}`,
+          "Content-Type": "application/json"
+        },
+        // Dependiendo de tu modelo, puede pedir { inputs: inputUrl } o { data: [inputUrl] }
+        body: JSON.stringify({ inputs: inputUrl }) 
+      })
+
+      const data = await response.json()
+      console.log("Respuesta de la IA:", data)
+      
+      // Aquí es donde procesarás el resultado para pintar los gráficos abajo.
+      alert('Analysis Complete! Check the console for data.')
+
+    } catch (error) {
+      console.error("Error llamando al modelo:", error)
+      alert('Something went wrong with the AI model.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <section className="relative group w-full">
       {/* Efecto de resplandor trasero */}
@@ -17,11 +57,18 @@ export default function AnalyzeCard() {
             <input 
               className="w-full bg-zinc-800 border border-zinc-700 rounded-xl pl-12 pr-4 py-4 text-[#e4e1e6] focus:ring-2 focus:ring-[#9333ea] focus:border-transparent transition-all outline-none" 
               placeholder="https://twitter.com/thread/..." 
-              type="text" 
+              type="text"
+              value={inputUrl}
+              onChange={(e) => setInputUrl(e.target.value)}
+              disabled={loading}
             />
           </div>
-          <button className="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-4 rounded-xl font-bold text-white shadow-purple-500/30 shadow-lg active:scale-95 transition-all cursor-pointer whitespace-nowrap">
-            Run Analysis
+          <button 
+            onClick={handleAnalysis}
+            disabled={loading}
+            className={`bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-4 rounded-xl font-bold text-white shadow-purple-500/30 shadow-lg active:scale-95 transition-all whitespace-nowrap ${loading ? 'opacity-50 cursor-not-allowed animate-pulse' : 'cursor-pointer'}`}
+          >
+            {loading ? 'Analyzing...' : 'Run Analysis'}
           </button>
         </div>
       </div>

@@ -38,15 +38,7 @@ export default function Sidebar() {
       </nav>
 
       {/* Perfil de Usuario abajo */}
-      <div className="mt-auto p-4 glass rounded-2xl flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full overflow-hidden border border-[#9333ea]/30">
-          <img alt="User Profile" className="w-full h-full object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" />
-        </div>
-        <div>
-          <p className="font-label text-sm font-bold text-[#e4e1e6]">Alex Rivera</p>
-          <p className="text-[10px] text-[#cfc2d7] font-bold tracking-wider">PRO ACCOUNT</p>
-        </div>
-      </div>
+    
     </aside>
   )
 }
