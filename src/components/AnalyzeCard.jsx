@@ -1,44 +1,38 @@
 import { useState } from 'react'
+import { analizarContenido } from '../services/toxicityApi'
 
-export default function AnalyzeCard() {
+
+// 1. Recibimos la función a través de las props del componente
+export default function AnalyzeCard({ onAnalysisComplete }) {
   const [inputUrl, setInputUrl] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleAnalysis = async () => {
-    if (!inputUrl) return alert('Please enter a URL first')
+    if (!inputUrl) return alert('Please enter a YouTube URL first')
 
     setLoading(true)
     try {
-      // 1. REEMPLAZA ESTA URL POR LA DE TU API DE HUGGING FACE
-      const apiUrl = "TU_URL_DE_HUGGING_FACE_AQUÍ" 
+      // Llamamos al servicio que habla con Go
+      const data = await analizarContenido(inputUrl)
       
-      // 2. REEMPLAZA ESTE TOKEN POR TU API KEY DE HUGGING FACE (hf_...)
-      const hfToken = "TU_TOKEN_DE_HUGGING_FACE_AQUÍ"
-
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${hfToken}`,
-          "Content-Type": "application/json"
-        },
-        // Dependiendo de tu modelo, puede pedir { inputs: inputUrl } o { data: [inputUrl] }
-        body: JSON.stringify({ inputs: inputUrl }) 
-      })
-
-      const data = await response.json()
       console.log("Respuesta de la IA:", data)
       
-      // Aquí es donde procesarás el resultado para pintar los gráficos abajo.
-      alert('Analysis Complete! Check the console for data.')
+      // Pasamos el nuevo JSON al componente padre para que pinte las gráficas o resultados
+      if (onAnalysisComplete) {
+        onAnalysisComplete(data)
+      }
+
+      // Limpiamos el cuadro de texto para la siguiente consulta
+      setInputUrl('')
 
     } catch (error) {
-      console.error("Error llamando al modelo:", error)
-      alert('Something went wrong with the AI model.')
+      alert('Something went wrong with the Backend. Check the console.');
     } finally {
       setLoading(false)
     }
   }
 
+ 
   return (
     <section className="relative group w-full">
       {/* Efecto de resplandor trasero */}
