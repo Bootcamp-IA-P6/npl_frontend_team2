@@ -23,9 +23,9 @@ export default function RecentCard({ title, time, toxicity, badge, image, mobile
   // --- MÓVIL ---
   if (mobile) {
     return (
-      <div className="flex items-center gap-4 py-4 border-b border-[#232329] hover:bg-zinc-900/40 px-2 transition-colors duration-200">
+      <div className="flex items-center gap-4 py-3 border-b border-[#232329] hover:bg-zinc-900/40 px-2 transition-colors duration-200">
         <div
-          className="w-14 h-12 rounded-xl shrink-0 border border-[#232329]"
+          className="w-12 h-10 rounded-xl shrink-0 border border-[#232329]"
           style={{
             background: image || 'linear-gradient(135deg, #7c3aed33, #16161a)',
           }}
@@ -41,43 +41,42 @@ export default function RecentCard({ title, time, toxicity, badge, image, mobile
     )
   }
 
-  // --- ESCRITORIO ---
+  // --- ESCRITORIO (TARJETAS MÁS PEQUEÑAS REESTILIZADAS) ---
   return (
-    <div className="rounded-2xl overflow-hidden bg-[#16161a] border border-[#232329] hover:border-zinc-700/80 transition-all duration-300 flex flex-col group shadow-lg">
+    <div className="rounded-xl overflow-hidden bg-[#16161a] border border-[#232329] hover:border-zinc-700/80 transition-all duration-300 flex flex-col group shadow-lg">
       
-      {/* Área de Imagen con el degradado/gráfico del prototipo */}
+      {/* 📐 Altura reducida de h-36 a h-20 para hacer la tarjeta más pequeña */}
       <div
-        className="h-36 w-full relative transition-transform duration-500 group-hover:scale-[1.02]"
+        className="h-20 w-full relative transition-transform duration-500 group-hover:scale-[1.01]"
         style={{
           background: image || 'linear-gradient(135deg, #1e1b4b, #090514)',
         }}
       >
-        {/* Un sutil overlay oscuro sobre la imagen para darle profundidad */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#16161a] to-transparent opacity-60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#16161a] to-transparent opacity-70" />
       </div>
 
-      {/* Contenido de la Tarjeta */}
-      <div className="p-5 flex flex-col gap-2.5 flex-1 bg-[#16161a]">
+      {/* Contenido ajustado con menos padding (p-4) */}
+      <div className="p-4 flex flex-col gap-2 flex-1 bg-[#16161a]">
         
-        {/* Badge dinámico con fondo traslúcido */}
-        <span className={`text-[10px] tracking-wide font-bold px-2 py-0.5 rounded-md self-start ${badgeClass}`}>
+        {/* Badge dinámico */}
+        <span className={`text-[9px] tracking-wide font-bold px-1.5 py-0.5 rounded self-start ${badgeClass}`}>
           {badge}
         </span>
         
-        {/* Título de la tarjeta */}
-        <h3 className="text-sm font-bold text-white leading-snug tracking-wide line-clamp-2 min-h-[40px]">
+        {/* Título de la tarjeta (Compactado) */}
+        <h3 className="text-xs font-bold text-white leading-tight tracking-wide line-clamp-1">
           {title}
         </h3>
         
         {/* Tiempo transcurrido */}
-        <p className="text-xs text-gray-500">Analyzed {time}</p>
+        <p className="text-[11px] text-gray-500">Analyzed {time}</p>
         
         {/* Divisor inferior y fila de métricas */}
-        <div className="flex items-center justify-between mt-auto pt-3 border-t border-[#232329]/80">
-          <span className="text-xs font-medium text-gray-400">
+        <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#232329]/60">
+          <span className="text-[11px] font-medium text-gray-400">
             Toxicity: <span className="text-white font-bold ml-1">{toxicity}%</span>
           </span>
-          <div className="flex items-center justify-center w-5 h-5 bg-zinc-900/60 rounded-full border border-zinc-800/40">
+          <div className="flex items-center justify-center w-4 h-4 bg-zinc-900/60 rounded-full border border-zinc-800/40">
             {trendIcon}
           </div>
         </div>

@@ -3,42 +3,45 @@ import AnalyzeCard from '../components/AnalyzeCard'
 import RecentCard from '../components/RecentCard'
 import ResultsPanel from '../components/ResultsPanel'
 
-const initialRecentAnalyses = [
+const STATS = [
+  { icon: '🧠', label: 'Modelo', value: 'DistilBERT' },
+  { icon: '💬', label: 'Comentarios por análisis', value: '10' },
+  { icon: '⚡', label: 'Tiempo medio', value: '~5s' },
+  { icon: '🎯', label: 'Precisión del modelo', value: '94%' },
+]
+
+const FEATURES = [
   {
-    id: 1,
-    title: 'Reddit r/gaming-thread-012',
-    time: '2h ago',
-    toxicity: 78,
-    badge: 'High Risk',
-    image: 'linear-gradient(135deg, #4a0080, #1a0030)',
+    icon: '🔍',
+    title: 'Detección automática',
+    desc: 'El modelo analiza cada comentario individualmente y lo clasifica como tóxico o seguro.',
   },
   {
-    id: 2,
-    title: 'TechCrunch Article Comments',
-    time: '5h ago',
-    toxicity: 12,
-    badge: 'Healthy',
-    image: 'linear-gradient(135deg, #003020, #001a10)',
+    icon: '📊',
+    title: 'Métricas en tiempo real',
+    desc: 'Obtén el porcentaje de toxicidad global, nivel de riesgo y confianza por comentario.',
   },
   {
-    id: 3,
-    title: 'Discord Community Alpha',
-    time: '8h ago',
-    toxicity: 34,
-    badge: 'Neutral',
-    image: 'linear-gradient(135deg, #2d0050, #100020)',
+    icon: '🛡️',
+    title: 'Niveles de riesgo',
+    desc: 'Clasificación en tres niveles: Saludable (0–30%), Neutral (30–60%) y Alto Riesgo (>60%).',
   },
 ]
 
 export default function Home() {
-  const [analyses, setAnalyses] = useState(initialRecentAnalyses)
+  // CONFIGURACIÓN SEGURA PARA LOCALSTORAGE (Anti-errores de Vercel)
+  const [analyses, setAnalyses] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return JSON.parse(localStorage.getItem('historial_videos')) || []
+    }
+    return []
+  })
+  
   const [analysisResult, setAnalysisResult] = useState(null)
 
   const handleNewAnalysis = (apiData) => {
-    // Guardamos el resultado completo para pintar el ResultsPanel
     setAnalysisResult(apiData)
 
-    // Calculamos el badge con 3 niveles correctos
     const getBadge = (pct) => {
       if (pct >= 60) return 'High Risk'
       if (pct >= 30) return 'Neutral'
@@ -51,26 +54,41 @@ export default function Home() {
       return 'linear-gradient(135deg, #003020, #001a10)'
     }
 
+    // 📹 Reconstruimos la URL completa usando el ID que nos da el Backend
+    const urlCompleta = `https://www.youtube.com/watch?v=${apiData.video_id}`
+
     const nuevoAnalisis = {
       id: Date.now(),
-      title: `YouTube Video: ${apiData.video_id}`,
-      time: 'Just now',
+      video_id: apiData.video_id,
+      video_url: urlCompleta, // 👈 Se guarda la URL completa aquí
+      video_title: `Video YouTube (${apiData.video_id})`, 
+      title: `YouTube · ${apiData.video_id}`,
+      time: 'Ahora mismo',
       toxicity: Math.round(apiData.porcentaje_toxicidad),
+      porcentaje_toxicidad: apiData.porcentaje_toxicidad, 
       badge: getBadge(apiData.porcentaje_toxicidad),
       image: getImage(apiData.porcentaje_toxicidad),
     }
 
-    setAnalyses((prevAnalyses) => [nuevoAnalisis, ...prevAnalyses])
+    // GUARDADO EN LOCALSTORAGE
+    setAnalyses((prev) => {
+      const filtrado = prev.filter(v => v.video_id !== nuevoAnalisis.video_id)
+      const listaActualizada = [nuevoAnalisis, ...filtrado]
+      
+      localStorage.setItem('historial_videos', JSON.stringify(listaActualizada))
+      return listaActualizada
+    })
   }
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg-primary)' }}>
-      {/* Desktop header */}
+
+      {/* Header escritorio */}
       <header
         className="hidden md:flex items-center justify-between px-8 py-5"
         style={{ borderBottom: '1px solid var(--border)' }}
       >
-        <h1 className="text-lg font-bold text-white tracking-wide">Analyze New URL</h1>
+        <h1 className="text-lg font-bold text-white tracking-wide">Analizar nuevo video</h1>
         <button
           className="w-9 h-9 rounded-full flex items-center justify-center"
           style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
@@ -79,7 +97,7 @@ export default function Home() {
         </button>
       </header>
 
-      {/* Mobile header */}
+      {/* Header móvil */}
       <header
         className="md:hidden flex items-center justify-between px-5 py-4"
         style={{ borderBottom: '1px solid var(--border)' }}
@@ -87,10 +105,7 @@ export default function Home() {
         <button className="text-white">
           <span className="text-xl">☰</span>
         </button>
-        <span
-          className="logo text-xl font-extrabold tracking-widest"
-          style={{ color: 'var(--accent-purple-light)' }}
-        >
+        <span className="logo text-xl font-extrabold tracking-widest" style={{ color: 'var(--accent-purple-light)' }}>
           VIBE
         </span>
         <button
@@ -101,51 +116,105 @@ export default function Home() {
         </button>
       </header>
 
-      {/* Main content */}
+      {/* Contenido principal */}
       <main className="px-5 md:px-8 pt-6 pb-24 md:pb-8">
+
+        {/* AnalyzeCard */}
         <AnalyzeCard onAnalysisComplete={handleNewAnalysis} />
 
-        {/* ResultsPanel — solo aparece cuando hay datos reales de la API */}
-        {analysisResult && <ResultsPanel data={analysisResult} />}
-
-        {/* Recent Analyses — se oculta mientras se muestran resultados para no saturar */}
-        {!analysisResult && (
+        {/* RESULTADOS */}
+        {analysisResult && (
           <>
-            <div className="flex items-center justify-between mb-5 mt-8">
-              <h2 className="text-base font-bold text-white">Recent Analyses</h2>
-              <button
-                className="text-sm font-medium transition-colors"
-                style={{ color: 'var(--accent-purple-light)' }}
-              >
-                View All →
-              </button>
-            </div>
-
-            {/* Desktop grid */}
-            <div className="hidden md:grid grid-cols-3 gap-4">
-              {analyses.map((item) => (
-                <RecentCard key={item.id} {...item} />
-              ))}
-            </div>
-
-            {/* Mobile list */}
-            <div className="md:hidden flex flex-col gap-4">
-              {analyses.map((item) => (
-                <RecentCard key={item.id} {...item} mobile />
-              ))}
-            </div>
+            <ResultsPanel data={analysisResult} />
+            <button
+              onClick={() => setAnalysisResult(null)}
+              className="mt-6 flex items-center gap-2 text-sm text-zinc-500 hover:text-white transition-colors"
+            >
+              <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+              Volver al inicio
+            </button>
           </>
         )}
 
-        {/* Botón para volver al historial desde los resultados */}
-        {analysisResult && (
-          <button
-            onClick={() => setAnalysisResult(null)}
-            className="mt-8 flex items-center gap-2 text-sm text-zinc-500 hover:text-white transition-colors"
-          >
-            <span>←</span>
-            <span>Volver al historial</span>
-          </button>
+        {/* PANEL DE BIENVENIDA */}
+        {!analysisResult && (
+          <>
+            {/* Estadísticas rápidas */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+              {STATS.map((s) => (
+                <div
+                  key={s.label}
+                  className="flex flex-col gap-1 rounded-2xl p-4 border border-[#232329] bg-[#16161a]"
+                >
+                  <span className="text-xl">{s.icon}</span>
+                  <span className="text-lg font-black text-white font-mono">{s.value}</span>
+                  <span className="text-xs text-zinc-500">{s.label}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Descripción del modelo */}
+            <div className="mt-6 rounded-2xl border border-[#232329] bg-[#16161a] p-6 md:p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 rounded-lg bg-purple-600/20 border border-purple-600/30 flex items-center justify-center">
+                  <span className="text-purple-400 text-sm">✦</span>
+                </div>
+                <h2 className="text-white font-bold text-base">¿Cómo funciona VIBE?</h2>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {FEATURES.map((f) => (
+                  <div
+                    key={f.title}
+                    className="flex flex-col gap-3 p-5 rounded-xl bg-zinc-900/60 border border-[#232329]"
+                  >
+                    <span className="text-2xl">{f.icon}</span>
+                    <h3 className="text-white font-semibold text-sm">{f.title}</h3>
+                    <p className="text-zinc-500 text-xs leading-relaxed">{f.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Pasos */}
+              <div className="mt-6 pt-6 border-t border-[#232329]">
+                <p className="text-zinc-500 text-xs font-semibold uppercase tracking-widest mb-4">
+                  Cómo usarlo
+                </p>
+                <div className="flex flex-col md:flex-row gap-3">
+                  {[
+                    { step: '01', text: 'Copia la URL del video de YouTube que quieras analizar' },
+                    { step: '02', text: 'Pégala en el campo de arriba y pulsa "Analizar video"' },
+                    { step: '03', text: 'Revisa las métricas, la tabla de comentarios y el nivel de riesgo' },
+                  ].map((s) => (
+                    <div key={s.step} className="flex items-start gap-3 flex-1">
+                      <span className="text-xs font-black font-mono text-purple-500 mt-0.5 shrink-0">{s.step}</span>
+                      <p className="text-zinc-400 text-xs leading-relaxed">{s.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Historial de análisis recientes */}
+            {analyses.length > 0 && (
+              <>
+                <div className="flex items-center justify-between mb-5 mt-8">
+                  <h2 className="text-base font-bold text-white">Análisis recientes</h2>
+                  <span className="text-xs text-zinc-500">{analyses.length} analizados</span>
+                </div>
+                <div className="hidden md:grid grid-cols-3 gap-4">
+                  {analyses.map((item) => (
+                    <RecentCard key={item.id} {...item} />
+                  ))}
+                </div>
+                <div className="md:hidden flex flex-col gap-4">
+                  {analyses.map((item) => (
+                    <RecentCard key={item.id} {...item} mobile />
+                  ))}
+                </div>
+              </>
+            )}
+          </>
         )}
       </main>
     </div>
