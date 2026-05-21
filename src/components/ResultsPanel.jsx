@@ -123,11 +123,12 @@ function CustomTooltip({ active, payload }) {
 export default function ResultsPanel({ data }) {
   if (!data) return null
 
-  const { video_id, comentarios_totales, comentarios_toxicos, porcentaje_toxicidad, detalle } = data
-  const comentariosSeguros = comentarios_totales - comentarios_toxicos
+  // AQUI ESTA EL CAMBIO PRINCIPAL: Leer las variables con los nombres que manda Go
+  const { video_id, total_comments, alertas_criticas, promedio_toxicidad, detalle } = data
+  const comentariosSeguros = total_comments - alertas_criticas
 
   const pieData = [
-    { name: 'Tóxicos',  value: comentarios_toxicos,  color: '#ef4444' },
+    { name: 'Tóxicos',  value: alertas_criticas,  color: '#ef4444' },
     { name: 'Seguros',  value: comentariosSeguros,    color: '#10b981' },
   ]
 
@@ -136,14 +137,14 @@ export default function ResultsPanel({ data }) {
     (a, b) => b.evaluacion.score_confianza - a.evaluacion.score_confianza
   )
 
-  const toxColor = getToxColor(porcentaje_toxicidad)
-  const toxBg    = getToxBg(porcentaje_toxicidad)
+  const toxColor = getToxColor(promedio_toxicidad)
+  const toxBg    = getToxBg(promedio_toxicidad)
 
   return (
     <div className="mt-8 flex flex-col gap-6">
 
       {/* ── ALERTA si toxicidad > 60% ── */}
-      {porcentaje_toxicidad >= 60 && (
+      {promedio_toxicidad >= 60 && (
         <div
           className="flex items-start gap-4 rounded-2xl px-6 py-4 border animate-pulse"
           style={{ background: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.3)' }}
@@ -169,23 +170,23 @@ export default function ResultsPanel({ data }) {
             className="self-start text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-lg mt-1"
             style={{ background: toxBg, color: toxColor }}
           >
-            {getRiskLabel(porcentaje_toxicidad)}
+            {getRiskLabel(promedio_toxicidad)}
           </span>
         </div>
-        <GaugeChart value={porcentaje_toxicidad} />
+        <GaugeChart value={promedio_toxicidad} />
       </div>
 
       {/* ── MÉTRICAS ── */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <MetricCard
           label="Total comentarios"
-          value={comentarios_totales}
+          value={total_comments}
           color="#f9fafb"
           icon="💬"
         />
         <MetricCard
           label="Comentarios tóxicos"
-          value={comentarios_toxicos}
+          value={alertas_criticas}
           color="#ef4444"
           icon="☣️"
         />
@@ -289,7 +290,7 @@ export default function ResultsPanel({ data }) {
             <div className="border-t border-[#232329] pt-2 mt-1 flex items-center justify-between">
               <span className="text-xs text-zinc-500">Toxicidad global</span>
               <span className="text-xs font-black font-mono" style={{ color: toxColor }}>
-                {porcentaje_toxicidad.toFixed(1)}%
+                {promedio_toxicidad.toFixed(1)}%
               </span>
             </div>
           </div>
@@ -299,3 +300,4 @@ export default function ResultsPanel({ data }) {
     </div>
   )
 }
+
