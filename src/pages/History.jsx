@@ -1,3 +1,5 @@
+
+
 import { useState, useEffect } from 'react'
 
 export default function History() {
@@ -53,8 +55,9 @@ export default function History() {
       
       <div className="flex flex-col gap-3">
         {videosHistorial.map((video) => {
-          // Extraemos la toxicidad asegurando que tome el valor numérico correcto
-          const pct = typeof video.porcentaje_toxicidad === 'number' ? video.porcentaje_toxicidad : video.toxicity;
+          // 💡 AQUÍ ESTÁ EL CAMBIO: Buscamos el nombre nuevo (promedio_toxicidad). 
+          // Si no existe (por si es un video muy antiguo), usamos porcentaje_toxicidad. Y si falla todo, un 0.
+          const pct = video.promedio_toxicidad ?? video.porcentaje_toxicidad ?? 0;
           const estilosDinamicos = obtenerEstiloToxicidad(pct);
 
           return (
@@ -103,3 +106,4 @@ export default function History() {
     </div>
   )
 }
+
